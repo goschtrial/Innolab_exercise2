@@ -1,0 +1,62 @@
+# Script for simple function that checks the difference in height from the sex-
+# specific mean for each of the students in the given dataframe
+# Date: 24.10.2017
+# Author: Jann Goschenhofer
+
+library(dplyr)
+
+
+
+### create data.frame
+
+age = c(19, 22, 21, 23, 22, 20, 28, 25)
+weight = c(50, 75, 80, 56, 75, 58, 65, 82)
+height = c(1.66, 1.78, 1.90, 1.72, 1.83, 1.68, 1.70, 1.85)
+sex = c("F", "M", "M", "F", "M", "F", "F", "M")
+
+students = data.frame(cbind(age, weight, height, sex))
+students = transform(students, age = as.numeric(as.character(age)))
+students = transform(students, height = as.numeric(as.character(height)))
+students = transform(students, weight = as.numeric(as.character(weight)))
+
+students$name = c("Maria", "Franz", "Peter", "Lisa", "Hans", "Eva", "Mia", "Karl")
+
+
+
+### function checkHeight3()
+
+
+checkHeight = function(students.input){
+
+  # calculate the means from the data
+  male.mean = students.input %>%
+    filter(sex == "M") %>%
+    summarise(mean = mean(height))
+  female.mean = students.input %>%
+    filter(sex == "F") %>%
+    summarise(mean = mean(height))
+
+  # function to be applied on each row
+  getDiff = function(student) {
+    if (student[which(colnames(students) == "sex")]  == "M") {
+      diff = 100 * (as.numeric(as.character(
+        student[which(colnames(students) == "height")])) - male.mean$mean)
+    }
+    else {
+      diff = 100 * (as.numeric(as.character(
+        student[which(colnames(students) == "height")]))  - female.mean$mean)
+    }
+    return(diff)
+  }
+
+  # apply row-wise on the data frame
+  diffs = apply(X = students, MARGIN = 1, FUN = function(x) (getDiff(x)))
+  return(data.frame(students.input$name, diffs))
+
+  print("YEAH YEAH YEAH DONE!!elf1!!")
+
+}
+
+checkHeight(students.input = students)
+
+
